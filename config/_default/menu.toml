@@ -7,9 +7,25 @@ url = "https://github.com/zeriyoshi"
 icon = "brand-github"
 
 [[social]]
-identifier = "x"
+identifier = "x1"
 name = "X"
 url = "https://x.com/zeriyoshi"
+
+[social.params]
+icon = "brand-x"
+
+[[social]]
+identifier = "x2"
+name = "X"
+url = "https://x.com/zeriyoshi_s"
+
+[social.params]
+icon = "brand-x"
+
+[[social]]
+identifier = "x3"
+name = "X"
+url = "https://x.com/zeriyoshi_k"
 
 [social.params]
 icon = "brand-x"
