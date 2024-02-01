@@ -2,5 +2,11 @@
 [en]
 languageName = "English"
 languagedirection = "ltr"
-title = "Example Site"
+title = "zeriyoshi blog"
+weight = 1
+
+[ja]
+languageName = "Japanese"
+languagedirection = "ltr"
+title = "ぜりブログ"
 weight = 1
