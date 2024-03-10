@@ -1,4 +1,4 @@
-baseurl = "//zeriyoshi.github.io/blog/"
+baseurl = "//zeriyoshi.github.io/"
 languageCode = "ja-jp"
 paginate = 5
 title = "ぜりブログ"
