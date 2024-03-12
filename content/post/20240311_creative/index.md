@@ -3,7 +3,7 @@ title: 生成AI問題に見る「特権意識」と「無産は不要」そし�
 slug: 20240311_creative
 date: 2024-03-11 00:00:00+0900
 categories:
-    - Creative
+    - creative
 weight: 1
 ---
 
