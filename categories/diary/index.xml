@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>diary on ぜりブログ</title><link>//zeriyoshi.github.io/categories/diary/</link><description>Recent content in diary on ぜりブログ</description><generator>Hugo -- gohugo.io</generator><language>ja-jp</language><lastBuildDate>Mon, 05 Feb 2024 00:00:00 +0900</lastBuildDate><atom:link href="//zeriyoshi.github.io/categories/diary/index.xml" rel="self" type="application/rss+xml"/><item><title>Raspberry Pi Pico でピコちゃんを再生する</title><link>//zeriyoshi.github.io/p/20240205_pico/</link><pubDate>Mon, 05 Feb 2024 00:00:00 +0900</pubDate><guid>//zeriyoshi.github.io/p/20240205_pico/</guid><description>&lt;p>&lt;a class="link" href="https://jashinchan.com/news/10179" target="_blank" rel="noopener"
+>邪フェス2&lt;/a> で邪神ちゃんしっぽマクロパッド (テンキー) を出すために久々に電子工作を再開しました。&lt;/p>
+&lt;p>前は自作キーボードと言えば Atmel (現: &lt;a class="link" href="https://www.microchip.co.jp/" target="_blank" rel="noopener"
+>Microchip&lt;/a>) の ATMega32U4 を用いたものが一般的でしたが、最近は Raspberry Pi 財団の開発した RP2040 が安くて (動作が) 早いということで主流になりつつあるようです。&lt;/p>
+&lt;h2 id="pico-boot-raspberry-pi-pico-互換機-購入">PICO-BOOT (Raspberry Pi Pico 互換機) 購入&lt;/h2>
+&lt;p>というわけで &lt;a class="link" href="https://www.raspberrypi.com/products/raspberry-pi-pico/" target="_blank" rel="noopener"
+>Raspberry Pi Pico&lt;/a> を購入しに秋葉原に向かったのですが、 &lt;strong>外部接続端子が USB microB&lt;/strong> だということを完全に忘れていました。いくら 700 円程度と安いとはいえ、今どき壊れやすくてケーブル調達のダルい microUSB を使いたくない&amp;hellip;&lt;/p>
+&lt;p>そんなことを思いながら&lt;a class="link" href="https://yushakobo.jp/" target="_blank" rel="noopener"
+>遊舎工房&lt;/a>の棚を眺めていたら、 USB C 端子にした &lt;code>PICO-BOOT&lt;/code> という互換機が&lt;a class="link" href="https://shop.yushakobo.jp/products/7532" target="_blank" rel="noopener"
+>売られていました。&lt;/a>お値段 1100 円。それでも ATMega32U4 の Pro Micro 互換機より安い&amp;hellip;&lt;/p>
+&lt;p>&lt;a class="link" href="https://qmk.fm/" target="_blank" rel="noopener"
+>QMK&lt;/a> (オープンソースのキーボードファームウェア) 側が対応しているのも確認済みだし、実際に頒布するやつでも使おう、ということで 10 個 + 1 個 (試作用) をまとめ買いしちゃいました。お値段 12100 円。&lt;/p>
+&lt;p>あとせっかくだから X (旧: Twitter) でバズりやすい、というかキャッチーな感じを演出できるよう音を出して遊ぶための小道具を購入しました。&lt;/p>
+&lt;h2 id="dfplayer-mini-で-microsdhc-カードから音楽を鳴らす">DFPlayer Mini で microSDHC カードから音楽を鳴らす&lt;/h2>
+&lt;p>まずは &lt;a class="link" href="https://wiki.dfrobot.com/DFPlayer_Mini_SKU_DFR0299" target="_blank" rel="noopener"
+>DFPlayer Mini&lt;/a> を使って microSDHC カードにある音楽を再生してみることにしました。&lt;/p>
+&lt;p>基板に &lt;a class="link" href="https://micropython.org/" target="_blank" rel="noopener"
+>MicroPython&lt;/a> ランタイムを書き込み、簡単なコードを書いてブレッドボードに配線&amp;hellip;動きました&lt;/p>
+&lt;script src="https://gist.github.com/zeriyoshi/8214a4d846ef42861f16f2383a1e4127.js">&lt;/script>
+&lt;blockquote class="twitter-tweet">&lt;p lang="ja" dir="ltr">Raspberry Pi Pico でペルちゃんを鳴らして遊んでいます&lt;br>Pico レッタちゃん &lt;a href="https://twitter.com/hashtag/%E9%82%AA%E7%A5%9E%E3%81%A1%E3%82%83%E3%82%93%E3%83%89%E3%83%AD%E3%83%83%E3%83%97%E3%82%AD%E3%83%83%E3%82%AF?src=hash&amp;amp;ref_src=twsrc%5Etfw">#邪神ちゃんドロップキック&lt;/a> &lt;a href="https://t.co/2ORQ9jxfDJ">pic.twitter.com/2ORQ9jxfDJ&lt;/a>&lt;/p>&amp;mdash; ぜり (@zeriyoshi_s) &lt;a href="https://twitter.com/zeriyoshi_s/status/1754151048883863925?ref_src=twsrc%5Etfw">February 4, 2024&lt;/a>&lt;/blockquote>
+&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
+&lt;p>まあ動いたんだけど、これって結局 DFPlayer Mini に再生命令送ってるだけだし、うーん&amp;hellip;&lt;/p>
+&lt;h2 id="pwm-を用いて直接スピーカーから再生">PWM を用いて直接スピーカーから再生&lt;/h2>
+&lt;p>単体で再生したい！ということでいろいろ調べてみると、どうやら &lt;a class="link" href="https://www.adafruit.com/" target="_blank" rel="noopener"
+>Adafruit&lt;/a> の &lt;a class="link" href="https://circuitpython.org/" target="_blank" rel="noopener"
+>CircuitPython&lt;/a> を使えば PWM を用いて簡単に音楽が再生できそうだということに。&lt;/p>
+&lt;p>&lt;code>BOOTSEL&lt;/code> ボタンを押しながら USB 接続して CircuitPython の &lt;code>uf2&lt;/code> ファイルをコピーして書き込み、コードを書いて&amp;hellip;動いた！&lt;/p>
+&lt;script src="https://gist.github.com/zeriyoshi/3ec0d518e54cb81b04e5b300453b6ee3.js">&lt;/script>
+&lt;blockquote class="twitter-tweet">&lt;p lang="ja" dir="ltr">Raspberry Pi ピコちゃんのPWMだけでペルちゃん再生しました &lt;a href="https://twitter.com/hashtag/%E9%82%AA%E7%A5%9E%E3%81%A1%E3%82%83%E3%82%93%E3%83%89%E3%83%AD%E3%83%83%E3%83%97%E3%82%AD%E3%83%83%E3%82%AF?src=hash&amp;amp;ref_src=twsrc%5Etfw">#邪神ちゃんドロップキック&lt;/a>&lt;a href="https://t.co/mjTg8fjowL">https://t.co/mjTg8fjowL&lt;/a> &lt;a href="https://t.co/GMe40exx49">pic.twitter.com/GMe40exx49&lt;/a>&lt;/p>&amp;mdash; ぜり (@zeriyoshi_s) &lt;a href="https://twitter.com/zeriyoshi_s/status/1754480535089582247?ref_src=twsrc%5Etfw">February 5, 2024&lt;/a>&lt;/blockquote>
+&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
+&lt;p>PWM だけでやっててアンプがかまさってないから音量は小さめだけど、十分満足な感じ。&lt;/p>
+&lt;p>それはそうとこの PICO-BOOT とやら、 16MB (bit じゃなく byte) もの Flash ROM がついてて何なら単体で音楽プレーヤーにできそう&amp;hellip; すごい時代ですね&lt;/p></description></item><item><title>こんにちは世界</title><link>//zeriyoshi.github.io/p/hello-world/</link><pubDate>Thu, 01 Feb 2024 00:00:00 +0900</pubDate><guid>//zeriyoshi.github.io/p/hello-world/</guid><description>&lt;p>へろーへろー&lt;/p></description></item></channel></rss>

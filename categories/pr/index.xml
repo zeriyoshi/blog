@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>PR on ぜりブログ</title><link>//zeriyoshi.github.io/categories/pr/</link><description>Recent content in PR on ぜりブログ</description><generator>Hugo -- gohugo.io</generator><language>ja-jp</language><lastBuildDate>Sun, 10 Mar 2024 00:00:00 +0900</lastBuildDate><atom:link href="//zeriyoshi.github.io/categories/pr/index.xml" rel="self" type="application/rss+xml"/><item><title>JLCPCB ではじめる邪神ちゃん電子工作 その1</title><link>//zeriyoshi.github.io/p/20240310_jlcpcb_part1/</link><pubDate>Sun, 10 Mar 2024 00:00:00 +0900</pubDate><guid>//zeriyoshi.github.io/p/20240310_jlcpcb_part1/</guid><description>&lt;h2 id="はじめに">はじめに&lt;/h2>
+&lt;p>この記事は &lt;a class="link" href="https://jlcpcb.jp" target="_blank" rel="noopener"
+>JLCPCB&lt;/a> 様にスポンサーいただき執筆しています。
+JLCPCB 様から受けたオファーはあくまでもブログ執筆による注文の割引のみであることをここに明記します。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/jlcpcb.png"
+width="1200"
+height="628"
+srcset="../../p/20240310_jlcpcb_part1/jlcpcb_hu9dcf898572b6dc820ab66cebaa9cc7c5_116291_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/jlcpcb_hu9dcf898572b6dc820ab66cebaa9cc7c5_116291_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="JLCPCB"
+class="gallery-image"
+data-flex-grow="191"
+data-flex-basis="458px"
+>&lt;/p>
+&lt;p>&lt;a class="link" href="https://jlcpcb.jp" target="_blank" rel="noopener"
+>JLCPCB&lt;/a> 様では新規ユーザー向けのお得なクーポンの配布も行っています。最新のキャンペーン状況については JLCPCB 日本様の &lt;a class="link" href="https://twitter.com/JLCPCB_Japan" target="_blank" rel="noopener"
+>公式 X (旧: Twitter)&lt;/a> を参照ください！&lt;/p>
+&lt;h2 id="きっかけは邪フェス2">きっかけは邪フェス2&lt;/h2>
+&lt;p>このブログを読んでいる人なら自分が &lt;a class="link" href="https://jashinchan.com" target="_blank" rel="noopener"
+>邪神ちゃんドロップキック&lt;/a> のファンであることはわかっていただけると思うのだけど、そんな邪神ちゃんドロップキック公式の同人イベント (なんだそれ) である邪フェス2が行われることがついこの間告知されました。&lt;/p>
+&lt;p>前回の邪フェス (ここでは便宜上&amp;quot;邪神フェス1&amp;quot;とする) では NG だったグッズ等の取扱もある程度許容されるとのこと。もともと邪フェス2が実施されるようであれば &lt;a class="link" href="https://zeriyoshi.github.io/OpenJCDK" target="_blank" rel="noopener"
+>邪神ちゃん画像bot&lt;/a> についての技術本を出そうと思っていましたが、ぶっちゃけ技術本は人を選びすぎるのでもっと万人受けする何かを出したいところ。&lt;/p>
+&lt;p>そういえば数年前に自作キーボードをやっていたな、ということを思い出し、せっかくなので邪フェス2に向けて邪神ちゃんしっぽ型テンキーを作ってみよう、ということになりました。&lt;/p>
+&lt;h2 id="最近の自作キーボードの潮流を調べる--rp2040-との出会い">最近の自作キーボードの潮流を調べる 〜 RP2040 との出会い&lt;/h2>
+&lt;p>キーボード (注: 楽器じゃなくて PC のやつ) 趣味自体はずっと続けていましたが、やはり個人が作れる製品の限界を感じ最近はもっぱら大手メーカーのキットや共同購入等のいわゆるハイエンドキーボードばかりになっており、自分で基板を設計してキーボードを作る、という趣味からは数年くらい離れていました。&lt;/p>
+&lt;p>大手メーカーや有名設計者が作るハイエンドキーボードに使い心地や品質の面では敵わなくとも、邪神ちゃん関連グッズとしての自作キーボードなら同人ハードウェアとしては唯一無二なものが作れるかもしれません。&lt;/p>
+&lt;p>ただせっかく作るのであればそこは可能な限り妥協したくありません。ということで最近のトレンドを調べることにしました。&lt;/p>
+&lt;p>するとどうやら最近は &lt;a class="link" href="https://www.sparkfun.com/products/12640" target="_blank" rel="noopener"
+>Sparkfun ProMicro&lt;/a> で天下を気づいた Atmel (現: Microchip) &lt;code>ATMEGA32U4&lt;/code> ではなく、あの有名な &lt;a class="link" href="https://www.raspberrypi.org/" target="_blank" rel="noopener"
+>Raspberry Pi Foundation&lt;/a> から発売された &lt;code>RP2040&lt;/code> というチップを使うのが流行っているとのこと。そしてこの RP2040 は ATMEGA32U4 に比べ大幅に高性能で使い勝手も良いということ。&lt;/p>
+&lt;p>そして何より RP2040 はチップ単位で供給されており、いろいろなものがオープンに公開されているので &lt;strong>自作の基板にそのまま組み込みやすい&lt;/strong> ということがわかりました。&lt;/p>
+&lt;p>当時も ProMicro を利用せず &lt;code>ATMEGA32U4&lt;/code> を自作の基板に直実装する人は何人か見かけましたが、設計や調達の上でのハードルが高く自分には真似できないなーと思っていたところ。これは憧れの直実装を実現するチャンスです。&lt;/p>
+&lt;p>というわけで RP2040 を直実装してくれる PCB 屋さんを探すことにしました。&lt;/p>
+&lt;h2 id="jlcpcb-との出会い">JLCPCB との出会い&lt;/h2>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/jlcpcb.png"
+width="1200"
+height="628"
+srcset="../../p/20240310_jlcpcb_part1/jlcpcb_hu9dcf898572b6dc820ab66cebaa9cc7c5_116291_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/jlcpcb_hu9dcf898572b6dc820ab66cebaa9cc7c5_116291_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="JLCPCB"
+class="gallery-image"
+data-flex-grow="191"
+data-flex-basis="458px"
+>&lt;/p>
+&lt;p>X (旧: Twitter) で電子工作関連について情報収集をしていたところ、どうやら &lt;a class="link" href="https://jlcpcb.jp" target="_blank" rel="noopener"
+>JLCPCB&lt;/a> という PCB 屋さんであれば &lt;code>RP2040&lt;/code> を直実装した基板を比較的リーズナブルに作ってくれそうです。&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/JLCPCB_Japan" target="_blank" rel="noopener"
+>公式 X (旧: Twitter)&lt;/a> を見ると、 &lt;strong>新規ユーザー限定で $54 相当のクーポンの配布を行っている&lt;/strong> ようでした。また X でフォロー、 DM 送信をすると &lt;strong>更に $10 相当のクーポンが貰えるようです。&lt;/strong> 早速フォローして連絡してみました。&lt;/p>
+&lt;p>するとこのブログを読んだ JLCPCB 担当者様から連絡があり、コラボ記事を書いてくれたら更に注文を割引するよ！とのこと。個人的にも JLCPCB のサービスでどこまでできるのかが見てみたかったのもあり、喜んでオファーを受けることにしました。&lt;/p>
+&lt;p>RP2040 を直実装したキーボードのサンプル基板を作ってみるぞ！&lt;/p>
+&lt;h2 id="kicad-で基板を設計する">KiCad で基板を設計する&lt;/h2>
+&lt;p>JLCPCB で基板を注文するには、まず基板の設計データが必要です。今回はフリーの基板 CAD ソフトである &lt;a class="link" href="https://www.kicad.org/" target="_blank" rel="noopener"
+>KiCad&lt;/a> を利用して設計を行ってきます。&lt;/p>
+&lt;p>まずは KiCad をインストールし起動します。 &lt;code>ファイル&lt;/code> メニューから &lt;code>新規プロジェクト&lt;/code> をクリックし、適当にプロジェクトを作成してください。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/1.png"
+width="918"
+height="150"
+srcset="../../p/20240310_jlcpcb_part1/1_huab56c485c2fa23e23dbb5d2ea747ebc1_127478_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/1_huab56c485c2fa23e23dbb5d2ea747ebc1_127478_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="新規プロジェクト"
+class="gallery-image"
+data-flex-grow="612"
+data-flex-basis="1468px"
+>&lt;/p>
+&lt;p>プロジェクト画面が開くので、まずは &lt;code>回路図エディター&lt;/code> を使って電子回路を組み立てていきます。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/2.png"
+width="2128"
+height="1456"
+srcset="../../p/20240310_jlcpcb_part1/2_huc37218bfefcf03543728c5f053c1795e_1132252_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/2_huc37218bfefcf03543728c5f053c1795e_1132252_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="KiCadプロジェクトウィンドウ"
+class="gallery-image"
+data-flex-grow="146"
+data-flex-basis="350px"
+>&lt;/p>
+&lt;p>回路図の組み立て方を詳細に説明していくとそれだけで本が書けてしまうので省略しますが、私は GitHub で公開されているフリーの RP2040 実装を参考に構築しました。&lt;/p>
+&lt;p>KiCad の使い方については以下の本がおすすめです。&lt;/p>
+&lt;p>&lt;a class="link" href="https://booth.pm/ja/items/5554691" target="_blank" rel="noopener"
+>KiCad 8 入門実習テキスト　『KiCad Basics for 8.0』&lt;/a>&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/3.png"
+width="2302"
+height="1558"
+srcset="../../p/20240310_jlcpcb_part1/3_huf2b31564253f82b8ed0cddfb1c28d888_1155802_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/3_huf2b31564253f82b8ed0cddfb1c28d888_1155802_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="KiCad 回路図エディター"
+class="gallery-image"
+data-flex-grow="147"
+data-flex-basis="354px"
+>&lt;/p>
+&lt;p>回路図が完成したら、次に &lt;code>PCB エディター&lt;/code> を使って実際の PCB (プリント基板) をデザインしていきます。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/4.png"
+width="2478"
+height="1692"
+srcset="../../p/20240310_jlcpcb_part1/4_hud5d0e34e40c39585c9bc33d72cb35983_1678087_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/4_hud5d0e34e40c39585c9bc33d72cb35983_1678087_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="KiCad PCB エディター"
+class="gallery-image"
+data-flex-grow="146"
+data-flex-basis="351px"
+>&lt;/p>
+&lt;h2 id="jlcpcb-で-pcba-するのに必要な情報を追加する">JLCPCB で PCBA するのに必要な情報を追加する&lt;/h2>
+&lt;p>JLCPCB は基板の製造だけでなく、部品の実装サービス (PCBA: PCB Assembly) も提供しており、今回はこれを利用して &lt;code>RP2040&lt;/code> とそれを動かす部品を実装した基板を製造してもらいます。&lt;/p>
+&lt;p>当然ですが PCBA を行うには基板のどこに何の部品を実装するのかを明確に指定してあげる必要があります。&lt;/p>
+&lt;p>基本的には先程の &lt;code>回路図エディター&lt;/code> でシンボルのカスタムプロパティを利用して部品番号を指定していくのですが、ぶっちゃけ面倒くさいです。&lt;/p>
+&lt;p>KiCad には数多くのプラグインがあり、 JLCPCB での製造をサポートするプラグインが用意されているので今回はこれを利用します。&lt;/p>
+&lt;h2 id="bouni-kicad-jlcpcb-tools-で提出ファイルを作成">Bouni KiCAD JLCPCB tools で提出ファイルを作成&lt;/h2>
+&lt;p>&lt;a class="link" href="https://github.com/Bouni/kicad-jlcpcb-tools" target="_blank" rel="noopener"
+>Bouni KiCad JLCPCB tools&lt;/a> は KiCad を利用して JLCPCB で基板をオーダーする際に便利な機能をまとめた KiCad 用のプラグインで、 GitHub で公開されています。今回はこれをインストールします。&lt;/p>
+&lt;p>KiCad のメイン画面から &lt;code>プラグイン＆コンテンツ マネージャー&lt;/code> をクリックします。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/5.png"
+width="2068"
+height="1300"
+srcset="../../p/20240310_jlcpcb_part1/5_hucfa4d45cb64f7c2113247403a5a87a20_966643_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/5_hucfa4d45cb64f7c2113247403a5a87a20_966643_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="KiCad プラグイン＆コンテンツ マネージャー"
+class="gallery-image"
+data-flex-grow="159"
+data-flex-basis="381px"
+>&lt;/p>
+&lt;p>次に &lt;code>管理...&lt;/code> ボタンをクリックし、 Bouni 氏のリポジトリを追加します。&lt;/p>
+&lt;p>&lt;img src="../../%ef%bc%96.png"
+loading="lazy"
+alt="KiCad リポジトリ追加"
+>&lt;/p>
+&lt;p>&lt;code>保存&lt;/code> をクリックするとリポジトリに &lt;code>Bouni's KiCad repository&lt;/code> が追加されるのでクリックし、 &lt;code>KiCAD JLCPCB tools&lt;/code> の &lt;code>インストール&lt;/code> をクリックし、画面右下の &lt;code>保留中の変更を適用&lt;/code> をクリックします。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/7.png"
+width="2068"
+height="1300"
+srcset="../../p/20240310_jlcpcb_part1/7_hucfa4d45cb64f7c2113247403a5a87a20_701278_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/7_hucfa4d45cb64f7c2113247403a5a87a20_701278_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="KiCad パッケージ追加"
+class="gallery-image"
+data-flex-grow="159"
+data-flex-basis="381px"
+>&lt;/p>
+&lt;p>するとインストールが行われるので画面を閉じ、 &lt;code>PCB エディター&lt;/code> に戻ります。画面右上に JLCPCB のアイコンが増えているはずですのでクリックします。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/8.png"
+width="142"
+height="98"
+srcset="../../p/20240310_jlcpcb_part1/8_hucdf1da0c74d4425e66b30a8998924941_12205_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/8_hucdf1da0c74d4425e66b30a8998924941_12205_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="KiCad JLCPCB"
+class="gallery-image"
+data-flex-grow="144"
+data-flex-basis="347px"
+>&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/9.png"
+width="2794"
+height="1692"
+srcset="../../p/20240310_jlcpcb_part1/9_hu6f43fc72ff238de02874a6f28c72f6c5_1353509_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/9_hu6f43fc72ff238de02874a6f28c72f6c5_1353509_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="KiCad BOM"
+class="gallery-image"
+data-flex-grow="165"
+data-flex-basis="396px"
+>&lt;/p>
+&lt;p>後はこの画面を操作し、 LCSC (JLCPCB と同じ企業が運営している部品商社) で検索した実装したい部品の番号を割り当てていきます。 &lt;code>RP2040&lt;/code> なら &lt;a class="link" href="https://www.lcsc.com/product-detail/Microcontroller-Units-MCUs-MPUs-SOCs_Raspberry-Pi-RP2040_C2040.html" target="_blank" rel="noopener"
+>これ&lt;/a> で、番号は &lt;code>C2040&lt;/code> になります。&lt;/p>
+&lt;p>実装してほしい全ての部品の割り当てが完了したら左上の &lt;code>Generate&lt;/code> ボタンを押します。するとプロジェクトのあるディレクトリに &lt;code>jlcpcb&lt;/code> というディレクトリが作成され、そこの &lt;code>production_files&lt;/code> ディレクトリに JLCPCB に提出すべきデータが全て生成されています。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/10.png"
+width="1806"
+height="1092"
+srcset="../../p/20240310_jlcpcb_part1/10_hu85e6de15fc33170933a434d3a928555e_421145_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/10_hu85e6de15fc33170933a434d3a928555e_421145_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="JLCPCB files"
+class="gallery-image"
+data-flex-grow="165"
+data-flex-basis="396px"
+>&lt;/p>
+&lt;h2 id="jlcpcb-にオーダーする-pcb">JLCPCB にオーダーする (PCB)&lt;/h2>
+&lt;p>上記のファイルを JLCPCB に提出し、製造してもらいます。&lt;/p>
+&lt;p>まずは &lt;a class="link" href="https://jlcpcb.jp" target="_blank" rel="noopener"
+>JLCPCB 公式サイト&lt;/a> を開き、右上の &lt;code>サインイン&lt;/code> から新規登録します。 Google アカウントを利用してログインできるので非常に楽です。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/11.png"
+width="786"
+height="462"
+srcset="../../p/20240310_jlcpcb_part1/11_hudb221a51b5df7265c1618e04e201a36b_79074_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/11_hudb221a51b5df7265c1618e04e201a36b_79074_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="JLCPCB サインイン"
+class="gallery-image"
+data-flex-grow="170"
+data-flex-basis="408px"
+>&lt;/p>
+&lt;p>サインインしたら画面右上の &lt;code>発注する&lt;/code> をクリックします。すると次のような画面が開きますので、 &lt;code>ガーバーファイルを追加&lt;/code> をクリックし、先程生成されたファイルの &lt;code>GERBER-&amp;lt;プロジェクト名&amp;gt;.zip&lt;/code> を選択し、しばらく待ちます。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/12.png"
+width="1934"
+height="992"
+srcset="../../p/20240310_jlcpcb_part1/12_hu662f037084381e8ab1cfb743473f9967_211403_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/12_hu662f037084381e8ab1cfb743473f9967_211403_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="JLCPCB Gerber"
+class="gallery-image"
+data-flex-grow="194"
+data-flex-basis="467px"
+>&lt;/p>
+&lt;p>しばらくすると基板のプレビューが表示されます (すごい！)&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/13.png"
+width="1272"
+height="390"
+srcset="../../p/20240310_jlcpcb_part1/13_hud97d1418e5eb85fe5fa5b69784567820_179084_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/13_hud97d1418e5eb85fe5fa5b69784567820_179084_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="基板プレビュー"
+class="gallery-image"
+data-flex-grow="326"
+data-flex-basis="782px"
+>&lt;/p>
+&lt;p>次に PCB の基本スペックを選択していきます。それぞれ見ていきますが、基本的に以下の設定で問題ないはずです (そうじゃない人は既に JLCPCB を使っていると思う&amp;hellip;)&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/14.png"
+width="1958"
+height="1376"
+srcset="../../p/20240310_jlcpcb_part1/14_huf17a81d978f24b870c2db324480136a5_294780_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/14_huf17a81d978f24b870c2db324480136a5_294780_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="オプション"
+class="gallery-image"
+data-flex-grow="142"
+data-flex-basis="341px"
+>&lt;/p>
+&lt;ul>
+&lt;li>ベース素材: FR-4 (よく見る基板です)&lt;/li>
+&lt;li>層: 2 (裏表あるはずなので 2 です)&lt;/li>
+&lt;li>寸法: 多分自動で計算されているはずなので不要&lt;/li>
+&lt;li>PCB数量: &lt;strong>要調整&lt;/strong> (作る枚数、ほしい枚数設定しましょう)&lt;/li>
+&lt;li>製品タイプ: 産業用/民生用電子機器&lt;/li>
+&lt;li>異なるデザイン: &lt;strong>後述&lt;/strong>&lt;/li>
+&lt;li>納品方式: 面付けなし&lt;/li>
+&lt;li>PCB厚さ: 1.6 (基板設計による)&lt;/li>
+&lt;li>PCBカラー: &lt;strong>好きな色を選んで下さい&lt;/strong>&lt;/li>
+&lt;li>シルクスクリーン印刷: 白&lt;/li>
+&lt;li>表面仕上: &lt;strong>後述&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;h3 id="異なるデザイン-について">&lt;code>異なるデザイン&lt;/code> について&lt;/h3>
+&lt;p>自分も勘違いしていたのですが、これは V-cut という基板への切れ込みを入れた場合に数を増やす必要があるようです。&lt;/p>
+&lt;p>今回の例の場合は V-cut を入れて 1 枚の大きな板から 2 個の基板を切り出すようにしたので、ここは &lt;code>2&lt;/code> を選ぶ必要があります。当初はこの意味に気付かず &lt;code>1&lt;/code> のままオーダーしてしまい、ちゃんと &lt;code>2&lt;/code> にしてね、と担当者の形に怒られてしまいました&amp;hellip;&lt;/p>
+&lt;h3 id="表面仕上-について">&lt;code>表面仕上&lt;/code> について&lt;/h3>
+&lt;p>基板は部品を実装する面にはんだでマスクを行いますが、その表面をどう形成するかを選ぶのがこの選択肢です。&lt;/p>
+&lt;p>それぞれ以下のような違いがあります。&lt;/p>
+&lt;ul>
+&lt;li>HASL: 最も一般的なやつ。ただはんだが載っている。鉛を含むはんだ。最も安い。&lt;/li>
+&lt;li>無鉛HASL: HASL と同じだが、鉛フリーはんだを使用。HASLよりは高いが誤差。&lt;/li>
+&lt;li>ENIG: いわゆる金フラッシュというもの。金を使うので高価だがマスクがもっこりせず金色でカッコイイ。&lt;/li>
+&lt;/ul>
+&lt;p>ぶっちゃけ個人で作る基板で HASL だろうと ENIG だろうと影響はほとんど無いと思われるので、好みと予算に応じて選びましょう。ちなみに ENIG にしても PCBA で部品を実装したら金が見えなくなっちゃうはずなので注意。&lt;/p>
+&lt;p>&lt;code>高度なオプション&lt;/code> については基本的にそのままで問題ないはずですが、不安であれば &lt;code>製造用ファイルの事前確認&lt;/code> をはいにしておきましょう。 JLCPCB のエンジニアが製造前に簡単に基板を確認してくれます。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/15.png"
+width="806"
+height="130"
+srcset="../../p/20240310_jlcpcb_part1/15_hu72e0d03a46afb4aba3badf824a461d87_19818_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/15_hu72e0d03a46afb4aba3badf824a461d87_19818_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="製造用ファイルの事前確認"
+class="gallery-image"
+data-flex-grow="620"
+data-flex-basis="1488px"
+>&lt;/p>
+&lt;h2 id="jlcpcb-にオーダーする-pcba">JLCPCB にオーダーする (PCBA)&lt;/h2>
+&lt;p>今回は PCBA を利用して部品の実装も行ってもらうので、追加で設定を行っていきます。&lt;/p>
+&lt;p>&lt;code>PCB組み立て&lt;/code> のところをクリックし、トグルスイッチをオンにします。今回はこんな感じでオーダーしました。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/16.png"
+width="1990"
+height="1242"
+srcset="../../p/20240310_jlcpcb_part1/16_hue27e91a06041141500a6885f1d79ad63_357192_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/16_hue27e91a06041141500a6885f1d79ad63_357192_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="PCBA"
+class="gallery-image"
+data-flex-grow="160"
+data-flex-basis="384px"
+>&lt;/p>
+&lt;p>それぞれオプションを見ていきます。&lt;/p>
+&lt;h3 id="pcbaタイプ-って何">&lt;code>PCBAタイプ&lt;/code> って何&lt;/h3>
+&lt;p>JLCPCB の PCBA サービスでは基本的な実装のみを提供する &lt;code>エコノミー&lt;/code> と実装全般を提供する &lt;code>標準&lt;/code> の 2 つがあり、それぞれ料金体系が異なります。安いので &lt;code>エコノミー&lt;/code> が選べるなら選ぶべきですが、以下のような条件が課せられます。&lt;/p>
+&lt;ul>
+&lt;li>両面実装基板はダメ&lt;/li>
+&lt;li>基板の V-cut はダメ&lt;/li>
+&lt;li>黄色基板はダメ&lt;/li>
+&lt;li>0402 以下のサイズの部品はダメ&lt;/li>
+&lt;li>その他 JLCPCB 側が Standard 限定としたパーツを使ってはダメ&lt;/li>
+&lt;/ul>
+&lt;p>上の 3 つは割とどうでもいいのですが、最後のやつが結構厄介です。というのも LED 等の光り物はだいたい Standard 限定にされているので、 LED を搭載するだけで Standard 必須になってしまいます。つらい。&lt;/p>
+&lt;p>今回はそもそも部品を両面実装にして製造するテストなので Standard にしました。&lt;/p>
+&lt;h3 id="組立サイド-って何">&lt;code>組立サイド&lt;/code> って何&lt;/h3>
+&lt;p>上面か下面どちらを PCBA するかを選びます。前述の通り Standard じゃないと片側だけになるのでそれを選びます。&lt;/p>
+&lt;h3 id="pcba数量-って何">&lt;code>PCBA数量&lt;/code> って何&lt;/h3>
+&lt;p>製造する PCB の中から PCBA を行う基板の枚数を指定します。数が分かれているのは基板は 10 枚作りたいけどそのうち PCBA するのは 5 枚だけでいい、みたいな需要に対応するためです。&lt;/p>
+&lt;h3 id="エッジレール基準-って何">&lt;code>エッジレール/基準&lt;/code> って何&lt;/h3>
+&lt;p>製造に使うエッジレールをどう追加するかを選びます。ここは基本的に任せてしまった方がいいと思うので &lt;code>JLCPCBに追加される&lt;/code> で良いと思います。どうしても自分で選びたい場合は &lt;code>お客様に追加される&lt;/code> を選びましょう (どういうパターンならそうしたいのかすらわからないけど)&lt;/p>
+&lt;h3 id="部品配置の確認-って何">&lt;code>部品配置の確認&lt;/code> って何&lt;/h3>
+&lt;p>製造する前に部品の配置が正しいかを確認します。デフォルトで &lt;code>いいえ&lt;/code> になってますが、これは &lt;code>はい&lt;/code> にすることを強くおすすめします。 KiCad の部品配置と JLCPCB 側の部品配置でズレが発生し、パーツの向きが変わってたりするので確認ないと危ないです。私はこれを &lt;code>はい&lt;/code> にしていたので LED の向きを確認してもらえてとても助かりました。&lt;/p>
+&lt;h2 id="jlcpcb-にオーダーする-ステンシル">JLCPCB にオーダーする (ステンシル)&lt;/h2>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/stencil.png"
+width="1249"
+height="577"
+srcset="../../p/20240310_jlcpcb_part1/stencil_hue09e5d7ca1be0379ae279799b5598a34_324388_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/stencil_hue09e5d7ca1be0379ae279799b5598a34_324388_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="ステンシル"
+class="gallery-image"
+data-flex-grow="216"
+data-flex-basis="519px"
+>&lt;/p>
+&lt;p>ステンシルとは自分で PCB への部品実装を行うときに利用する部品の位置に穴が空いた鉄板のことで、これを利用してクリームはんだを塗ったりします。 PCBA をする際には確実に作られるので、欲しいなら有効にしておきます。とはいえ結構高いので自分はオフで注文しました。&lt;/p>
+&lt;h2 id="jlcpcb-にオーダーする-bom--cpl-の提出と位置調整">JLCPCB にオーダーする (BOM ・ CPL の提出と位置調整)&lt;/h2>
+&lt;p>上記の設定が終わったら &lt;code>カートに保存&lt;/code> をクリックして次に進みます。&lt;/p>
+&lt;p>するとまずは基板のプレビューが表示され、 &lt;code>次へ&lt;/code> をクリックすることで部品表 (BOM) や部品配置 (CPL) の提出画面が開きます。&lt;/p>
+&lt;p>それぞれボタンをクリックし、 JLCPCB tools で生成された BOM と CPL ファイルを選択してアップロードしましょう。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/17.png"
+width="2778"
+height="528"
+srcset="../../p/20240310_jlcpcb_part1/17_huc29186dadf7e9832cee597ca867eedcf_111655_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/17_huc29186dadf7e9832cee597ca867eedcf_111655_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="BOM/CPL"
+class="gallery-image"
+data-flex-grow="526"
+data-flex-basis="1262px"
+>&lt;/p>
+&lt;p>アップロードしたら &lt;code>BOMとCPLを処理する&lt;/code> ボタンを押します。すると部品の対応表や価格、在庫状況が表示されるので、問題ないか確認して更に　&lt;code>次へ&lt;/code> をクリックします。&lt;/p>
+&lt;p>私の場合だけかもしれませんがたいてい部品配置がずれてるのでマウスでクリックしてキーボードのカーソルキーで調整します。細かいところは JLCPCB の人が調整してくれるはずですが、あまりにずれてると良くないと思うので調整します。結構操作しにくいのですが、頑張って調整しましょう&amp;hellip;&lt;/p>
+&lt;p>(スクリーンショットを掲載しようと思ったものの JLCPCB サイトが公式が調子悪いのか 3D モデルが表示されなくなっていたので省略)&lt;/p>
+&lt;p>終わったら &lt;code>次へ&lt;/code> を押して進みます。高額の注文になる場合は自動で JLCPCB の担当者によるチェックオプションが有効になります。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/18.png"
+width="1196"
+height="770"
+srcset="../../p/20240310_jlcpcb_part1/18_hu324f3c28b37f3d6a99ca2e29eeb859bb_125736_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/18_hu324f3c28b37f3d6a99ca2e29eeb859bb_125736_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="オプションが有効化された"
+class="gallery-image"
+data-flex-grow="155"
+data-flex-basis="372px"
+>&lt;/p>
+&lt;p>最後に輸出・輸入の管理用に使われる HS コードを指定する必要があります。今回はキーボードなので &lt;code>オフィス用品およびアクセサリ&lt;/code> -&amp;gt; &lt;code>キーボード&lt;/code> を選択しました。&lt;/p>
+&lt;p>&lt;img src="../../p/20240310_jlcpcb_part1/19.png"
+width="1442"
+height="436"
+srcset="../../p/20240310_jlcpcb_part1/19_hu89d3c2c34b38403c7e2e867c675f9b77_97689_480x0_resize_box_3.png 480w, ../../p/20240310_jlcpcb_part1/19_hu89d3c2c34b38403c7e2e867c675f9b77_97689_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="キーボード"
+class="gallery-image"
+data-flex-grow="330"
+data-flex-basis="793px"
+>&lt;/p>
+&lt;p>後は通常のショッピングサイトと同じように会計を済ませれば注文は完了です。注文に問題があれば JLCPCB の担当者からメールで連絡が来るので、しっかりメールを確認しておきましょう。&lt;/p>
+&lt;h2 id="注文完了到着まで待機">注文完了、到着まで待機&amp;hellip;&lt;/h2>
+&lt;p>その2に続く&amp;hellip;&lt;/p></description></item></channel></rss>

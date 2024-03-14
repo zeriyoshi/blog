@@ -1,0 +1,695 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>JCDK on ぜりブログ</title><link>//zeriyoshi.github.io/categories/jcdk/</link><description>Recent content in JCDK on ぜりブログ</description><generator>Hugo -- gohugo.io</generator><language>ja-jp</language><lastBuildDate>Mon, 05 Feb 2024 00:00:00 +0900</lastBuildDate><atom:link href="//zeriyoshi.github.io/categories/jcdk/index.xml" rel="self" type="application/rss+xml"/><item><title>Raspberry Pi Pico でピコちゃんを再生する</title><link>//zeriyoshi.github.io/p/20240205_pico/</link><pubDate>Mon, 05 Feb 2024 00:00:00 +0900</pubDate><guid>//zeriyoshi.github.io/p/20240205_pico/</guid><description>&lt;p>&lt;a class="link" href="https://jashinchan.com/news/10179" target="_blank" rel="noopener"
+>邪フェス2&lt;/a> で邪神ちゃんしっぽマクロパッド (テンキー) を出すために久々に電子工作を再開しました。&lt;/p>
+&lt;p>前は自作キーボードと言えば Atmel (現: &lt;a class="link" href="https://www.microchip.co.jp/" target="_blank" rel="noopener"
+>Microchip&lt;/a>) の ATMega32U4 を用いたものが一般的でしたが、最近は Raspberry Pi 財団の開発した RP2040 が安くて (動作が) 早いということで主流になりつつあるようです。&lt;/p>
+&lt;h2 id="pico-boot-raspberry-pi-pico-互換機-購入">PICO-BOOT (Raspberry Pi Pico 互換機) 購入&lt;/h2>
+&lt;p>というわけで &lt;a class="link" href="https://www.raspberrypi.com/products/raspberry-pi-pico/" target="_blank" rel="noopener"
+>Raspberry Pi Pico&lt;/a> を購入しに秋葉原に向かったのですが、 &lt;strong>外部接続端子が USB microB&lt;/strong> だということを完全に忘れていました。いくら 700 円程度と安いとはいえ、今どき壊れやすくてケーブル調達のダルい microUSB を使いたくない&amp;hellip;&lt;/p>
+&lt;p>そんなことを思いながら&lt;a class="link" href="https://yushakobo.jp/" target="_blank" rel="noopener"
+>遊舎工房&lt;/a>の棚を眺めていたら、 USB C 端子にした &lt;code>PICO-BOOT&lt;/code> という互換機が&lt;a class="link" href="https://shop.yushakobo.jp/products/7532" target="_blank" rel="noopener"
+>売られていました。&lt;/a>お値段 1100 円。それでも ATMega32U4 の Pro Micro 互換機より安い&amp;hellip;&lt;/p>
+&lt;p>&lt;a class="link" href="https://qmk.fm/" target="_blank" rel="noopener"
+>QMK&lt;/a> (オープンソースのキーボードファームウェア) 側が対応しているのも確認済みだし、実際に頒布するやつでも使おう、ということで 10 個 + 1 個 (試作用) をまとめ買いしちゃいました。お値段 12100 円。&lt;/p>
+&lt;p>あとせっかくだから X (旧: Twitter) でバズりやすい、というかキャッチーな感じを演出できるよう音を出して遊ぶための小道具を購入しました。&lt;/p>
+&lt;h2 id="dfplayer-mini-で-microsdhc-カードから音楽を鳴らす">DFPlayer Mini で microSDHC カードから音楽を鳴らす&lt;/h2>
+&lt;p>まずは &lt;a class="link" href="https://wiki.dfrobot.com/DFPlayer_Mini_SKU_DFR0299" target="_blank" rel="noopener"
+>DFPlayer Mini&lt;/a> を使って microSDHC カードにある音楽を再生してみることにしました。&lt;/p>
+&lt;p>基板に &lt;a class="link" href="https://micropython.org/" target="_blank" rel="noopener"
+>MicroPython&lt;/a> ランタイムを書き込み、簡単なコードを書いてブレッドボードに配線&amp;hellip;動きました&lt;/p>
+&lt;script src="https://gist.github.com/zeriyoshi/8214a4d846ef42861f16f2383a1e4127.js">&lt;/script>
+&lt;blockquote class="twitter-tweet">&lt;p lang="ja" dir="ltr">Raspberry Pi Pico でペルちゃんを鳴らして遊んでいます&lt;br>Pico レッタちゃん &lt;a href="https://twitter.com/hashtag/%E9%82%AA%E7%A5%9E%E3%81%A1%E3%82%83%E3%82%93%E3%83%89%E3%83%AD%E3%83%83%E3%83%97%E3%82%AD%E3%83%83%E3%82%AF?src=hash&amp;amp;ref_src=twsrc%5Etfw">#邪神ちゃんドロップキック&lt;/a> &lt;a href="https://t.co/2ORQ9jxfDJ">pic.twitter.com/2ORQ9jxfDJ&lt;/a>&lt;/p>&amp;mdash; ぜり (@zeriyoshi_s) &lt;a href="https://twitter.com/zeriyoshi_s/status/1754151048883863925?ref_src=twsrc%5Etfw">February 4, 2024&lt;/a>&lt;/blockquote>
+&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
+&lt;p>まあ動いたんだけど、これって結局 DFPlayer Mini に再生命令送ってるだけだし、うーん&amp;hellip;&lt;/p>
+&lt;h2 id="pwm-を用いて直接スピーカーから再生">PWM を用いて直接スピーカーから再生&lt;/h2>
+&lt;p>単体で再生したい！ということでいろいろ調べてみると、どうやら &lt;a class="link" href="https://www.adafruit.com/" target="_blank" rel="noopener"
+>Adafruit&lt;/a> の &lt;a class="link" href="https://circuitpython.org/" target="_blank" rel="noopener"
+>CircuitPython&lt;/a> を使えば PWM を用いて簡単に音楽が再生できそうだということに。&lt;/p>
+&lt;p>&lt;code>BOOTSEL&lt;/code> ボタンを押しながら USB 接続して CircuitPython の &lt;code>uf2&lt;/code> ファイルをコピーして書き込み、コードを書いて&amp;hellip;動いた！&lt;/p>
+&lt;script src="https://gist.github.com/zeriyoshi/3ec0d518e54cb81b04e5b300453b6ee3.js">&lt;/script>
+&lt;blockquote class="twitter-tweet">&lt;p lang="ja" dir="ltr">Raspberry Pi ピコちゃんのPWMだけでペルちゃん再生しました &lt;a href="https://twitter.com/hashtag/%E9%82%AA%E7%A5%9E%E3%81%A1%E3%82%83%E3%82%93%E3%83%89%E3%83%AD%E3%83%83%E3%83%97%E3%82%AD%E3%83%83%E3%82%AF?src=hash&amp;amp;ref_src=twsrc%5Etfw">#邪神ちゃんドロップキック&lt;/a>&lt;a href="https://t.co/mjTg8fjowL">https://t.co/mjTg8fjowL&lt;/a> &lt;a href="https://t.co/GMe40exx49">pic.twitter.com/GMe40exx49&lt;/a>&lt;/p>&amp;mdash; ぜり (@zeriyoshi_s) &lt;a href="https://twitter.com/zeriyoshi_s/status/1754480535089582247?ref_src=twsrc%5Etfw">February 5, 2024&lt;/a>&lt;/blockquote>
+&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
+&lt;p>PWM だけでやっててアンプがかまさってないから音量は小さめだけど、十分満足な感じ。&lt;/p>
+&lt;p>それはそうとこの PICO-BOOT とやら、 16MB (bit じゃなく byte) もの Flash ROM がついてて何なら単体で音楽プレーヤーにできそう&amp;hellip; すごい時代ですね&lt;/p></description></item><item><title>「邪神ちゃんセリフ逆引き辞書(仮)」反対派の人たちに思うこと</title><link>//zeriyoshi.github.io/p/2024020201_jcdk_dict_feel/</link><pubDate>Fri, 02 Feb 2024 00:00:04 +0900</pubDate><guid>//zeriyoshi.github.io/p/2024020201_jcdk_dict_feel/</guid><description>&lt;p>過去に類を見ないほどムカついています。 Apple Watch の心拍数警告がすごい。&lt;/p>
+&lt;h2 id="反対派の人たちについて">反対派の人たちについて&lt;/h2>
+&lt;p>正直、こんな人達にまともにとりあったことに後悔しています。&lt;/p>
+&lt;h3 id="a氏について">A氏について&lt;/h3>
+&lt;p>まず、理論と感情分けて物を考えたほうが良いと思います。&lt;/p>
+&lt;p>私は同人活動というものは様々なものがグレーな中で権利者・二次創作者が空気を読み作品を盛り上げることだと考えています。これは同人活動に携わる人間であれば全ての人が知っているべきことではないでしょうか。&lt;/p>
+&lt;p>あと、確証がないことを言うべきではないのかもしれませんが、自分の仲間になってくれる人を探す癖はやめたほうがいいと思います。私と話をすれば良いだけなのに、関係ない人に相談したり DM したりするのは単なる迷惑行為です。&lt;/p>
+&lt;p>B氏にも相談したのだと思いますが、B氏がやたら高圧的に私に接してきたのも、あなたが感情的にB氏に泣きついたからなのではないかと邪推しています。
+もしそうなのだとしたら、到底いい大人がやるようなことには思えません。&lt;/p>
+&lt;h3 id="b氏について">B氏について&lt;/h3>
+&lt;p>私はA氏よりB氏によりムカついています。あなたのやっていることは最低の行為です。&lt;/p>
+&lt;p>まず、私の活動をフレックスコミックスのガイドラインに違反しているからやめろと言っておきながら、あなた自身がそのガイドラインに違反した行動をしているのは全く持って意味不明です。そもそもあなたは権利者ではありません。&lt;/p>
+&lt;p>なぜあなたの同人活動は許容されるのかと聞いた時、あなたは「自分で調べてください。」と何度もおっしゃいましたね。言われたので調べてみましたが、法的に許されているという根拠は何一つ見つかりませんでした。むしろ、違法であるという見解のほうが多く見受けられました。もしこれをあなたに直接伝えても「探し方が悪い、もっと探せ」とおっしゃるでしょう。やり方があまりに子供じみています。&lt;/p>
+&lt;p>何より腹立たしいのは、こちらがあくまで低姿勢で理性的に話を進めようとしているのに何度も不必要な人格否定をしてくることです。一つ一つ見ていきます。&lt;/p>
+&lt;blockquote>
+&lt;p>夜中にDM送ってくるなんて非常識ですよ&lt;/p>
+&lt;/blockquote>
+&lt;p>非常識も何も、直前にあなたにメンションを送られたのですが。&lt;/p>
+&lt;blockquote>
+&lt;p>アニメ公式を盾に取るなんて残念です&lt;/p>
+&lt;/blockquote>
+&lt;p>アニメ公式は権利者の一人であり、あなたよりも格段に権利者サイドなのですが。
+そもそも「盾に取る」って、一体何の話をしているんですか？&lt;/p>
+&lt;blockquote>
+&lt;p>このコメントはデータの使用許諾ではないですよね&lt;/p>
+&lt;/blockquote>
+&lt;p>ガキですか？&lt;/p>
+&lt;blockquote>
+&lt;p>本人に聞いたのですか？&lt;/p>
+&lt;/blockquote>
+&lt;p>聞いても結局答えていただけませんでしたが、本人って誰ですか？ユキヲ先生ですか？
+出版物の版権は出版社にあります。人ではありません。&lt;/p>
+&lt;p>(&lt;code>失礼ですが、サークル名さんは邪フェス前から同人誌を発行されてますよね？&lt;/code>に対し)&lt;/p>
+&lt;blockquote>
+&lt;p>失礼だな&lt;/p>
+&lt;/blockquote>
+&lt;p>失礼なのはあなたです。&lt;/p>
+&lt;blockquote>
+&lt;p>ダウンロード販売はPixivでの販売なので合法です。
+法的にもOKだし同人誌イベントでの頒布、PixivBOOTHでの販売も法的に問題はありません。&lt;/p>
+&lt;/blockquote>
+&lt;p>根拠を示して下さい。そもそも、法的に問題はあります。非親告罪の対象であるというだけです。&lt;/p>
+&lt;blockquote>
+&lt;p>なんで1か0しかないんですか？
+人と会話したことないんですか？&lt;/p>
+&lt;/blockquote>
+&lt;p>フレックスコミックスのガイドラインに違反しているからやめろ、とゼロイチ理論を持ち出したのはあなたです。&lt;/p>
+&lt;blockquote>
+&lt;p>無断転載と同人誌は違うものであるし、データベース用にコミックスのセリフ全てのコピーは無断転載にあたると思うよ。&lt;/p>
+&lt;/blockquote>
+&lt;p>それはあなたの見解であり、権利者の見解ではありません。&lt;/p>
+&lt;blockquote>
+&lt;p>同人誌は作品の愛から生まれるものであって、ただのコピーとは違うからね。&lt;/p>
+&lt;/blockquote>
+&lt;p>行動に愛があるかどうかをどのように判断するのですか？それはただの主観ですよね。&lt;/p></description></item><item><title>BさんとのX上でのDMの記録</title><link>//zeriyoshi.github.io/p/2024020202_jcdk_dict_dm_b/</link><pubDate>Fri, 02 Feb 2024 00:00:03 +0900</pubDate><guid>//zeriyoshi.github.io/p/2024020202_jcdk_dict_dm_b/</guid><description>&lt;h2 id="はじめに">はじめに&lt;/h2>
+&lt;p>本記事は「邪神ちゃんセリフ逆引き辞書(仮)」で発生した問題について、反対派であるBさんとのX (旧: Twitter) 上でのDMのやりとりを記録したものです。&lt;/p>
+&lt;h3 id="補足事項">補足事項&lt;/h3>
+&lt;ul>
+&lt;li>反対されている方は２人おり、それぞれ &lt;code>A&lt;/code> さん、 &lt;code>B&lt;/code> さんとしています。&lt;/li>
+&lt;li>私は一時期 &lt;code>ぞる&lt;/code> というハンドルネームを用いていたため、 &lt;code>ぞる&lt;/code> と呼ばれている場面がありますが、 &lt;code>ぜり&lt;/code> と読み替えてください。&lt;/li>
+&lt;/ul>
+&lt;h3 id="時系列">時系列&lt;/h3>
+&lt;ol>
+&lt;li>X上のスペースにて「邪神ちゃんセリフ逆引き辞書(仮)」の話をする&lt;/li>
+&lt;li>スペースに居たAさん、Bさんより否定的な意見を表明される&lt;/li>
+&lt;li>スペース終了&lt;/li>
+&lt;li>私(ぜり)よりAさんにフォローのDMを送る&lt;/li>
+&lt;li>Bさんに否定的な意見を再度表明される&lt;/li>
+&lt;li>BさんにDMを送る&lt;/li>
+&lt;li>Aさんにブロックされる &amp;lt;- ここ&lt;/li>
+&lt;/ol>
+&lt;h3 id="免責事項">免責事項&lt;/h3>
+&lt;p>このDMによるやり取りを公開することについて相手の許諾を得ていません。しかし以下の事由により、法的問題はないものと考えています。
+公開にあたり、弁護士 服部啓一郎さまの note を参考にさせていただいております。&lt;/p>
+&lt;p>&lt;a class="link" href="https://note.com/keiichirohattori/n/n6cafef74b1dd" target="_blank" rel="noopener"
+>https://note.com/keiichirohattori/n/n6cafef74b1dd&lt;/a>&lt;/p>
+&lt;p>この記事で法解釈について「〜と考えられます」と書いている点については、実際に訴訟を行わない限り答えが出ない (法律とはそういうもの) ためです。&lt;/p>
+&lt;h4 id="誰であるかを特定できる情報を含まないこと">誰であるかを特定できる情報を含まないこと&lt;/h4>
+&lt;p>公開にあたり相手を特定できないよう一部の情報を伏しており、個人の同定可能性を有さないため、名誉毀損 (名誉権の侵害) には該当しません。&lt;/p>
+&lt;h4 id="プライバシー侵害に該当しないこと">プライバシー侵害に該当しないこと&lt;/h4>
+&lt;p>個人の同定可能性を有さないため、プライバシーの侵害には該当しません。また仮に個人を特定できたとしても、&lt;code>「ある事実を公表されない法的利益とこれを公表する理由とを比較衡量し、前者が後者に優越する場合」&lt;/code> を満たさないため、違法性はないものと考えられます。&lt;/p>
+&lt;h2 id="やり取り本文">やり取り本文&lt;/h2>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>こんばんは。Aさんに先ほどDMで連絡させていただいていたのですが、内容についてBさんは把握されていない形でしょうか？&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>知ってるよ
+もう少しわかりやすく書いてね
+夜中にDM送ってくるなんて非常識ですよ&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>こちらに悪意があると考えられてますか？&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>考えてないよ&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>すみません、私にはこの流れで &amp;ldquo;非常識ですよ&amp;rdquo; と言われる意味がわかりません。最大限そちらの意図を汲みつつ、尊重させていただいているつもりなのに、そのような態度を取られる理由がわかりません。&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>DMはプライバシーなので見せてもらってないので内容は全て知らないですよ&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん
+!(スクリーンショット)[1.png]&lt;/p>
+&lt;blockquote>
+&lt;p>ちなみに先ほどAさんに送らさせていただいたこちらのメッセージにつきまして、Bさんはどのように考えておられるのでしょうか？&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>アニメ公式から出版社に了解を取ってるのなら良いと思いますが&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>書き方が悪趣味ですね&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>アニメ公式を盾に取るなんて残念です&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>これについてはどう思いますか？&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>このコメントはデータの使用許諾ではないですよね&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>どう思いますか？&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>本人に聞いたのですか？&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>どう思いますか？&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>我々は権利者ではなく、判断するのは権利者です。著作権侵害が親告罪なのはご存知だと思いますが、この状況下でBさんが侵害行為であり、取りやめることを求めることに正当性はあるのでしょうか？&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>&lt;a class="link" href="https://twitter.com/zeriyoshi_s/status/1752586088231969196" target="_blank" rel="noopener"
+>https://twitter.com/zeriyoshi_s/status/1752586088231969196&lt;/a>
+ちなみに、Bさんが行われている同人誌の発行は、指摘いただいたフレックスコミックスの著作権ガイドラインに明確に違反しているものになります。こちらについて許容されうると考える理論を教えていただけますか？&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;blockquote>
+&lt;p>本人に聞いたのですか？
+この場合の本人とは一体誰なのでしょうか？&lt;/p>
+&lt;/blockquote>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>まず第一に、なぜそこまで好戦的に対応されているのか、全く理解できません。&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>同人誌の発行は邪神ちゃんアニメ公式が開いてるイベントで認められたから同人誌が発行できる&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>交戦的かどうかはぞるさんの主観ですよね&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>失礼ですが、サークル名さんは邪フェス前から同人誌を発行されてますよね？&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>失礼だな&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>その時に許容されていると判断された理由を教えていただけますか？&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>20年くらいサークルで同人誌を頒布させていただいてます&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>コミックマーケットなどの同人誌即売会では同人誌は販売ではなく頒布です。&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>ダウンロード販売は違うと思いますが&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>原作のままの作品の譲渡ではなく二次創作物としての頒布は合法です。&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>フレックスコミックスのガイドラインに違反しているが、法的には許容される、という認識ということであっていますか？&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>ダウンロード販売はPixivでの販売なので合法です。&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>自分で調べてください。&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>法的にもOKだし同人誌イベントでの頒布、PixivBOOTHでの販売も法的に問題はありません。&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>自分で調べてください。&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>フレックスコミックスのガイドラインはどうですか？&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>なんでいちいち人に聞くんですか&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>あなたが発行しているものだからです&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>なんで1か0しかないんですか？&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>人と会話したことないんですか？&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>そうなりますよね、それが著作権侵害が親告罪な理由です&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>Aさんにも説明させていただいているように、同人という文化を破壊するような行為であるからやめてくれ、と言われるなら理解できます。&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>&lt;a class="link" href="https://twitter.com/zeriyoshi_s/status/1752584981820670304" target="_blank" rel="noopener"
+>https://twitter.com/zeriyoshi_s/status/1752584981820670304&lt;/a>
+まず一度こちらの一連のポストをお読みいただけますでしょうか。&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>無断転載と同人誌は違うものであるし、データベース用にコミックスのセリフ全てのコピーは無断転載にあたると思うよ。
+同人誌は無断転載でもないし無断複写でもないからね。&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>続けるというのなら止めませんよ。&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>ではなぜ私にフレックスコミックスのガイドライン違反を理由に差し止めるようにもとめてきたのですか？&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>同人誌は作品の愛から生まれるものであって、ただのコピーとは違うからね。&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>それはガイドラインと関係がありますか？
+作品への愛の形をあなたの尺度で決めるのは何か間違っていませんか？&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>愛は例えよ&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>とりあえず、Bさんとは完全なる意見の相違があり、お互い理解し合えないことが理解できました。
+どのような議論があったか含めてより多くの人に意見を求めるために、Bさんの名前を伏せて(確実に誰であるかはわからないようにするとお約束します)DMでのやりとりを公開させていただくことはできますか？&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>DMの公開はプライバシーがあるから許可できません。&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>Aさんの意見DMもプライバシーがあるから公開してはダメですよ。&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>では、文章をそのままではなく、意図を汲む形でアンケートをさせていただくことは可能ですか？もちろん、公開内容については事前にBさんに確認いただいた上で行います&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>アンケートにはお答えしてますけど、新しいアンケートを作るのですか？&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>はい。どのような理論で反対する方がいらっしゃって、どちらの意見に賛同するかを問うものを作るという想定です。&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>ちなみにですが、只今スペースに来ていただくことなどは出来ますでしょうか？たった今帰宅しましたので、そちらで話し合わさせていただいたほうが早いのではないかと思っております&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>寝ます。おやすみなさい。&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>Aさんにブロックされたのですが、何か経緯をご存知だったりしますか？&lt;/p>
+&lt;/blockquote>
+&lt;p>Bさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>存じ上げません。&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Bさん&lt;/p>
+&lt;blockquote>
+&lt;p>承知しました。先日の質問についてご回答をいただくことはできますでしょうか。&lt;/p>
+&lt;/blockquote></description></item><item><title>AさんとのX上でのDMの記録</title><link>//zeriyoshi.github.io/p/2024020202_jcdk_dict_dm_a/</link><pubDate>Fri, 02 Feb 2024 00:00:02 +0900</pubDate><guid>//zeriyoshi.github.io/p/2024020202_jcdk_dict_dm_a/</guid><description>&lt;h2 id="はじめに">はじめに&lt;/h2>
+&lt;p>本記事は「邪神ちゃんセリフ逆引き辞書(仮)」で発生した問題について、反対派であるAさんとのX (旧: Twitter) 上でのDMのやりとりを記録したものです。&lt;/p>
+&lt;h3 id="補足事項">補足事項&lt;/h3>
+&lt;ul>
+&lt;li>反対されている方は２人おり、それぞれ &lt;code>A&lt;/code> さん、 &lt;code>B&lt;/code> さんとしています。&lt;/li>
+&lt;li>私は一時期 &lt;code>ぞる&lt;/code> というハンドルネームを用いていたため、 &lt;code>ぞる&lt;/code> と呼ばれている場面がありますが、 &lt;code>ぜり&lt;/code> と読み替えてください。&lt;/li>
+&lt;/ul>
+&lt;h3 id="時系列">時系列&lt;/h3>
+&lt;ol>
+&lt;li>X上のスペースにて「邪神ちゃんセリフ逆引き辞書(仮)」の話をする&lt;/li>
+&lt;li>スペースに居たAさん、Bさんより否定的な意見を表明される&lt;/li>
+&lt;li>スペース終了&lt;/li>
+&lt;li>私(ぜり)よりAさんにフォローのDMを送る &amp;lt;- ここ&lt;/li>
+&lt;/ol>
+&lt;h3 id="免責事項">免責事項&lt;/h3>
+&lt;p>このDMによるやり取りを公開することについて相手の許諾を得ていません。しかし以下の事由により、法的問題はないものと考えています。
+公開にあたり、弁護士 服部啓一郎さまの note を参考にさせていただいております。&lt;/p>
+&lt;p>&lt;a class="link" href="https://note.com/keiichirohattori/n/n6cafef74b1dd" target="_blank" rel="noopener"
+>https://note.com/keiichirohattori/n/n6cafef74b1dd&lt;/a>&lt;/p>
+&lt;p>この記事で法解釈について「〜と考えられます」と書いている点については、実際に訴訟を行わない限り答えが出ない (法律とはそういうもの) ためです。&lt;/p>
+&lt;h4 id="誰であるかを特定できる情報を含まないこと">誰であるかを特定できる情報を含まないこと&lt;/h4>
+&lt;p>公開にあたり相手を特定できないよう一部の情報を伏しており、個人の同定可能性を有さないため、名誉毀損 (名誉権の侵害) には該当しません。&lt;/p>
+&lt;h4 id="プライバシー侵害に該当しないこと">プライバシー侵害に該当しないこと&lt;/h4>
+&lt;p>個人の同定可能性を有さないため、プライバシーの侵害には該当しません。また仮に個人を特定できたとしても、&lt;code>「ある事実を公表されない法的利益とこれを公表する理由とを比較衡量し、前者が後者に優越する場合」&lt;/code> を満たさないため、違法性はないものと考えられます。&lt;/p>
+&lt;h4 id="相手に既にブロックされており確認手段がないこと">相手に既にブロックされており、確認手段がないこと&lt;/h4>
+&lt;p>突如ブロックされているため、やり取りを公開する許諾を得ることがそもそも不可能です。&lt;/p>
+&lt;h2 id="やり取り本文">やり取り本文&lt;/h2>
+&lt;p>ぜり -&amp;gt; Aさん&lt;/p>
+&lt;blockquote>
+&lt;p>先程はスペースで言い合いのようになってしまって大変申し訳ありませんでしたｍｍ&lt;/p>
+&lt;p>権利侵害かどうかについては権利者側が判断することなので、今回の問題は私のやっていることを倫理的にどう考えるか、という話になるかと思っています。&lt;/p>
+&lt;p>実際、通常の連載漫画でこのような行為を行うことは倫理的に NG であるというのは理解しています。それでも今これを進めているのは、協力いただいている方とスペースで話し合い、邪神ちゃんという漫画のコンテンツとして主の部分は、ストーリーではなく絵や雰囲気にあるであろう、というふうに考え、このシステムを作ることで作品の主の部分を侵害しないであろう、という判断をしたからになります。ただし、最終的にそれが許されるかどうかは権利者側が判断することであり、仮に権利者側から意義が申し立てられた場合すぐに削除するつもりです。&lt;/p>
+&lt;p>一方で、Aさんご自身の道徳観にそぐわない行為をする人間と協力して同人誌を出すことについて懸念があることも理解しています。今回、その部分について話し合わないといけないように思います。&lt;/p>
+&lt;p>例えば AI の使用に懐疑的なイラストレーターの方が AI イラストをやられている方と合同で同人誌を出すかというと、出さないと思います。&lt;/p>
+&lt;p>正直な所、権利的にどうかというより、Aさん・Bさんとしてこのシステムを作る行為についてどう思われますでしょうか。もし少しでも懸念があるようであれば、おそらく画像 bot の技術書のデザインをお願いするのはお互いのためにならないので、やめたほうが良いのではないかと考えています。&lt;/p>
+&lt;p>上記について、お二人で話し合った上で、技術書のデザインをお願いするかどうか、判断いただきたいと考えています。&lt;/p>
+&lt;p>まだまだ時間があるので、結論を出すのは１ヶ月後とかでも大丈夫です。心理的負担をおかけして大変申し訳ございませんが、ご判断のほど何卒よろしくお願いいたします🙇&lt;/p>
+&lt;/blockquote>
+&lt;p>Aさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>睡眠薬を飲んじゃったのでお返事はまたするです&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>まず初めに、わたしは頭が良くありません
+ぞるさんと対等に意見を交換し合えるほどの地力はないと思います&lt;/p>
+&lt;p>そちら側が感情ではないかという考え方を書いてしまうと思います
+なぜなら感情があるからです
+感情と理論を話して意見を言う事はわたしには難しいです
+わたしが頭がよくないからだと思います(そう思います)&lt;/p>
+&lt;p>意見を言った事について言い争ったという気持ちはありません&lt;/p>
+&lt;p>フレックスコミック著作規約&lt;/p>
+&lt;p>4.出版物やホームページ上の画像・文章・漫画・キャラクター等をもとに作成した漫画・小説・文章等を掲載すること。
+5.出版物やホームページ上の画像・漫画・キャラクター等を使用・改変した自作画（イラスト・パロディ等）を掲載すること。&lt;/p>
+&lt;p>がありますが、公式側が同人誌イベントを開催したことにより
+4、5項目を邪神ちゃんドロップキック作品は緩めてくださったのだと思います&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>感情的な物の言い方をすれば&lt;/p>
+&lt;p>僕が楽しく遊ぼうとした遊びに文句を言うなら
+もう遊ばない&lt;/p>
+&lt;p>と言っているようにも思えます&lt;/p>
+&lt;p>そうではない、理論的に技術的にと言い返すでしょうが、
+水を刺してしまい大変申し訳ない気持ちでいっぱいです&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Aさん&lt;/p>
+&lt;blockquote>
+&lt;p>謝らないでください！何か悪いことをされたという認識ではないですし、むしろとても良い問題定義をしていただけたと思っています&lt;/p>
+&lt;/blockquote>
+&lt;p>Aさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>わたし個人は引用について思う事は多々ありますが
+非常に頭がよくないもので、このような拙い文章を書いてしまいます&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Aさん&lt;/p>
+&lt;blockquote>
+&lt;p>職業柄どうしても堅苦しい文章を書いてしまうのでその点については申し訳ないです。。。ロジハラ的なことがしたいわけではないことはご理解いただけると。。。&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>先程連続でポストしたのですが、今回の件は同人という文化の認識が違うことで起きたすれ違いだと思っています&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>私の認識が間違ってなければ、同人活動は空気を読む文化だと思っています。フレックスコミックスのガイドライン上二次創作全般を禁止しているのに、邪神ちゃんが公式でそういうイベントをやったりしているのもつまりはそういうことなんだと思っています&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>そういう世界で、突然空気の読めない行動をする人が現れたら文化がおびやかされてしまいますし、AさんとBさんはそれを危惧されたのだと思っています&lt;/p>
+&lt;/blockquote>
+&lt;p>Aさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>引用について、大学も出ていませんし、論文も書いた事がありませんが
+大学を出て、論文を書いた事がある方に聞いてみました&lt;/p>
+&lt;p>&lt;a class="link" href="https://halulog.com/blockquote/" target="_blank" rel="noopener"
+>https://halulog.com/blockquote/&lt;/a>&lt;/p>
+&lt;p>このようなサイトを教えていただき、引用は理由があって引用するという事なのだなと思いました&lt;/p>
+&lt;/blockquote>
+&lt;p>&lt;img src="../../p/2024020202_jcdk_dict_dm_a/1.jpg"
+width="1169"
+height="1783"
+srcset="../../p/2024020202_jcdk_dict_dm_a/1_hu555430bae94b0a3f5ca50692a0e52f7e_184921_480x0_resize_q75_box.jpg 480w, ../../p/2024020202_jcdk_dict_dm_a/1_hu555430bae94b0a3f5ca50692a0e52f7e_184921_1024x0_resize_q75_box.jpg 1024w"
+loading="lazy"
+alt="スクリーンショット"
+class="gallery-image"
+data-flex-grow="65"
+data-flex-basis="157px"
+>&lt;/p>
+&lt;blockquote>
+&lt;p>そして辞書は意味を調べるためにあると思います&lt;/p>
+&lt;p>辞書で図にあるように「はかる」が何ページにあるか調べる人がいるでしょうか？
+(もしかしたらいるかもしれませんが)&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>では、漫画作品のセリフを辞書でひく場合
+どのような引用条件が必要か(？
+と考えました
+(頭がよくないので説明が下手である事を先に謝罪します)
+(これから邪神ちゃんのコミック画像をアップしますが、個人間の説明のためなので、著作権的に見逃してください)&lt;/p>
+&lt;/blockquote>
+&lt;p>コミック画像の画像なため省略&lt;/p>
+&lt;blockquote>
+&lt;p>邪神ちゃんドロップキック10巻(ユキヲ/comicメテオ/フレックスコミックス)&lt;/p>
+&lt;p>引用の書き方として本来は画像の下に書くべきdrした&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>このページのゆりねのセリフ
+「それ&amp;hellip;見つけちゃったらしょうがないわね」
+を引用するために何が必要なのか&lt;/p>
+&lt;p>コミックス9巻の続きであること、何が見つかったのか、本のような物は何か？
+を説明しなければいけないと思います
+(感情ではなくセリフ引用のために必要な事であると考えました)&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>辞書として成立させるなら説明がないと&lt;/p>
+&lt;p>「それ&amp;hellip;見つけったったらしょうがないわね」&lt;/p>
+&lt;p>邪神ちゃんドロップキック10巻(ユキヲ/comicメテオ/フレックスコミックス)
+よりセリフ引用&lt;/p>
+&lt;p>が成り立たないのではないかと考えました&lt;/p>
+&lt;/blockquote>
+&lt;p>コミック画像の画像なため省略&lt;/p>
+&lt;blockquote>
+&lt;p>しかし、邪神ちゃん作品の辞書は作る事が可能であると思います&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>画像は&lt;/p>
+&lt;p>邪神ちゃんドロップキック10巻(ユキヲ/comicメテオ/フレックスコミックス)よりコマ抜粋&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>このようにゆりねが何度「わははは」と笑ったかとカウントし、発表する事は可能です
+いわゆる用語集になると思います
+用語集、カウント集には引用の範囲内で引用が可能だと思います
+引用の範囲内は作者(この場合用語集を編集した人)のアイデア(カウントを数えコメントを加える)量に対し、引用内容は少なくするのが引用の範囲内だと
+(複数人の大学卒の人たちから教えてもらいました)&lt;/p>
+&lt;p>(論文は引用のみだと論文ではないという意味合いです)&lt;/p>
+&lt;p>今回は論文ではありませんが。
+引用の範囲内、引用する理由の薄さ(薄さという表現が感情的に感じられ数値的でないかもしれません)(辞書引きしたいだけなら、漫画を読んで解決できるのでは？)&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>そして、頭が悪いなりに思いつく限りの悪いことを考えました&lt;/p>
+&lt;p>セリフが全て公開されている
+コピーができるという事
+(コピー禁止でも悪い人はコピーするでしょう)
+漫画をしらない人(邪神ちゃん)が読んでも意味がわからないか(？)
+キャラ名を検索すれば作品名を知る事ができます
+コピーして多言語に翻訳し、何巻の何コマのセリフか表記してあるならば
+漫画を写真で撮って日本語を消し多言語海賊版が出来上がります
+そして公開してお金がもうかるかどうかまではよくわからないですが
+この↑海賊版を作るのに使った素材はセリフ辞書だと添えます&lt;/p>
+&lt;p>私はこれが違法であると知っているのでしませんが
+悪い人はもっと悪い事を考えつくと思います&lt;/p>
+&lt;p>悪い人に悪い事に利用されないような仕組みも必要だなと思いました&lt;/p>
+&lt;p>(コミックを写真に撮ってアップロードしている人だっているじゃないかという現場も知っています)
+(誰が悪いという話ではなく、悪い事に利用できるなと思いつきました(しませんが)&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>わたしは頭がよくないので、議論の相手にもならないと思います
+このような要領の悪い文章を長く送ってしまった事を謝罪します&lt;/p>
+&lt;p>一生懸命考えたり色んな人に聞いてみて、わたしなりにまとめた内容が以上となり&lt;/p>
+&lt;p>重複になりますが、長い文章で申し訳ありません&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Aさん&lt;/p>
+&lt;blockquote>
+&lt;p>いえ、むしろ心労おかけしてしまって申し訳ないですｍｍ&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>&lt;a class="link" href="https://twitter.com/jashinchan_PJ/status/1752525106746945885" target="_blank" rel="noopener"
+>https://twitter.com/jashinchan_PJ/status/1752525106746945885&lt;/a>
+ちなみになのですが、アニメ公式(アニメであって権利者すべてではない)からこのように言われているのですが、Aさん、Bさんとしてはそれでもやめたほうが良いと思われますでしょうか？
+気を使ったりしなくて良いので、本当に率直なご意見をいただけると嬉しいです&lt;/p>
+&lt;/blockquote>
+&lt;p>Aさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>公式が応援してくれてるのに反対してるのお前たちだけだから今の気持ちどう？ってこと？&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>公式が応援してくれるんだったらいいんじゃないのかな&amp;hellip;&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Aさん&lt;/p>
+&lt;blockquote>
+&lt;p>ええ&amp;hellip;そんな悪意あるように見えますか&amp;hellip;&lt;/p>
+&lt;/blockquote>
+&lt;p>Aさん -&amp;gt; ぜり&lt;/p>
+&lt;blockquote>
+&lt;p>言い方が難しい&amp;hellip;&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>文化？というのがどういう意味合いを指すのかむつかしい&amp;hellip;&lt;/p>
+&lt;/blockquote>
+&lt;p>ぜり -&amp;gt; Aさん&lt;/p>
+&lt;blockquote>
+&lt;p>単に、同人文化に長い間触れてる人からすると普通こういうことはしないよ、というものなのか聞きたかっただけです&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>同人活動をした経験がないので、感覚がわからなくて&lt;/p>
+&lt;/blockquote>
+&lt;p>ブロックされたため終了&lt;/p></description></item><item><title>「邪神ちゃんセリフ逆引き辞書(仮)」で発生した問題</title><link>//zeriyoshi.github.io/p/2024020201_jcdk_dict/</link><pubDate>Fri, 02 Feb 2024 00:00:01 +0900</pubDate><guid>//zeriyoshi.github.io/p/2024020201_jcdk_dict/</guid><description>&lt;h1 id="はじめに">はじめに&lt;/h1>
+&lt;p>この記事は、私が開発中である Web サイト （Web アプリケーション) である「邪神ちゃんセリフ逆引き辞書(仮)」の作成に際し発生した法的・倫理的問題について詳細な記録を残すことを目的とした記事です。&lt;/p>
+&lt;h2 id="邪神ちゃんセリフ逆引き辞書仮について">「邪神ちゃんセリフ逆引き辞書(仮)」について&lt;/h2>
+&lt;p>「邪神ちゃんセリフ逆引き辞書(仮)」は漫画作品「邪神ちゃんドロップキック」内で登場するセリフの一部を入力することで、原作の何巻何話に登場したのかを調べることができる Web サイト　(Web アプリケーション) です。&lt;/p>
+&lt;p>以下は Google スプレッドシートで作成したアプリケーションのサンプルで、入力欄に断片的にセリフを入力することにより、原作何巻何話に登場したセリフなのかを確認することができます。&lt;/p>
+&lt;p>&lt;img src="../../p/2024020201_jcdk_dict/jcdk_dict_mock.png"
+width="1068"
+height="138"
+srcset="../../p/2024020201_jcdk_dict/jcdk_dict_mock_hu0cee8ebca13227b909604805c3e811b3_25601_480x0_resize_box_3.png 480w, ../../p/2024020201_jcdk_dict/jcdk_dict_mock_hu0cee8ebca13227b909604805c3e811b3_25601_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="イメージ画像"
+class="gallery-image"
+data-flex-grow="773"
+data-flex-basis="1857px"
+>&lt;/p>
+&lt;h2 id="邪神ちゃんセリフ逆引き辞書仮の抱える権利上の懸念事項について">「邪神ちゃんセリフ逆引き辞書(仮)」の抱える権利上の懸念事項について&lt;/h2>
+&lt;p>「邪神ちゃんセリフ逆引き辞書(仮)」は、権利上・倫理上の問題が発生する可能性があります。以下は、今回の問題が顕在化する中で提起された問題の一覧です。&lt;/p>
+&lt;ol>
+&lt;li>著作権法上の問題が発生しうること&lt;/li>
+&lt;li>出版社であるフレックスコミックス株式会社のガイドラインに違反すること&lt;/li>
+&lt;li>セリフデータを悪用される可能性があること&lt;/li>
+&lt;li>「読まれる権利」を侵害すること&lt;/li>
+&lt;li>「同人活動」という文化を破壊すること&lt;/li>
+&lt;li>「愛がない」こと&lt;/li>
+&lt;/ol>
+&lt;p>それぞれの項目について、より詳しく見ていきます。&lt;/p>
+&lt;h3 id="著作権法上の問題が発生しうること">著作権法上の問題が発生しうること&lt;/h3>
+&lt;p>「邪神ちゃんセリフ逆引き辞書(仮)」は断片的なセリフから原作何巻何話に登場するセリフなのかを特定するためのツールであり、その検索を行うデータベースとして原作コミックスの「巻数・話数・登場セリフ」をまとめたデータを必要とします。このデータの作成及び公開について、著作権侵害なのではないかという指摘がありました。&lt;/p>
+&lt;p>この懸念は私が「邪神ちゃんセリフ逆引き辞書(仮)」を考案する段階から認識しておりましたが、以下の事由により、制作及び公開は許容されうるものと考えました。&lt;/p>
+&lt;h4 id="正当な引用の範疇である可能性">正当な引用の範疇である可能性&lt;/h4>
+&lt;p>「邪神ちゃんドロップキック」は商業出版物であり、著作権法の適用対象となります。&lt;/p>
+&lt;p>著作権法には引用 (著作権法 第32条第1項) という項が定められており、その内容は以下の通りです。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">引用は、公正な慣行に合致するものであり、かつ、報道、批評、研究その他の引用の目的上正当な範囲内で行なわれるものでなければならない。
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ただし、著作権法による引用は以下の要件を満たす必要があります。「邪神ちゃんセリフ逆引き辞書(仮)」は、以下の事由によりそれを満たすものと考えることができます。&lt;/p>
+&lt;h5 id="引用部分が明示されている">引用部分が明示されている&lt;/h5>
+&lt;p>引用部分はセリフと明確であり、明示されています。&lt;/p>
+&lt;h5 id="引用元が明示されている">引用元が明示されている&lt;/h5>
+&lt;p>すべてのセリフは何巻何話、という形で常に引用元が明示されています。&lt;/p>
+&lt;h5 id="主従関係が明確であること">主従関係が明確であること&lt;/h5>
+&lt;p>「邪神ちゃんセリフ逆引き辞書(仮)」は主である「邪神ちゃんドロップキック」に対し、明確に従の関係を持ちます。&lt;/p>
+&lt;h5 id="引用の目的が明確であり引用の必然性があること">引用の目的が明確であり、引用の必然性があること&lt;/h5>
+&lt;p>「邪神ちゃんドロップキック」は全22巻(2024-02-02 時点)からなる漫画作品であり、セリフが登場する箇所を調べるには時間と労力が大きくかかります。
+「邪神ちゃんセリフ逆引き辞書(仮)」 はその労力を最小化することを目的としており、明確な目的を有しています。&lt;/p>
+&lt;p>この説明に対する反論として、「時間がかかったとしても原作を読めば良いのだから引用の必然性がない」というものがありましたが、仮にこれが正しいとすると、世の中で行われている多くの引用にも同じことが言えてしまうため、そのような反論は妥当ではないと考えます。&lt;/p>
+&lt;h5 id="引用部分を改変していないこと">引用部分を改変していないこと&lt;/h5>
+&lt;p>引用対象のセリフについて改変を一切行っていません。改変してしまうと本来の目的を果たせなくなります。&lt;/p>
+&lt;h4 id="非親告罪の著作権等侵害罪に該当しないと思われること">非親告罪の著作権等侵害罪に該当しないと思われること&lt;/h4>
+&lt;p>著作権侵害については、 TPP11 協定に際し一部非親告罪化されています。&lt;/p>
+&lt;p>しかし、非親告罪として著作権等侵害罪を適用するためには、以下の要件を全て満たす必要があります。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">２．著作権等侵害罪の一部非親告罪化（新法第123条第２項及び第３項関係）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">　海賊版対策の実効性の確保により資する観点から，現在親告罪とされている著作権等侵害罪について，以下の全ての要件に該当する場合に限り，非親告罪の対象とし，著作権者等の告訴がなくとも公訴を提起することができることとしたこと。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">　　① 侵害行為の対価として財産上の利益を得る目的又は有償著作物等（権利者が有償で公衆に提供・提示している著作物等）の提供若しくは提示により権利者の得ることが見込まれる利益を害する目的を有していること
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">　　② 有償著作物等を「原作のまま」公衆譲渡若しくは公衆送信又はこれらのための複製を行うものであること
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">　　③ 有償著作物等の提供又は提示により権利者の得ることが見込まれる「利益が不当に害されることとなる場合」であること
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>引用元： &lt;a class="link" href="https://www.hokutopat.com/6277" target="_blank" rel="noopener"
+>https://www.hokutopat.com/6277&lt;/a> および&lt;a class="link" href="https://www.bunka.go.jp/seisaku/bunkashingikai/chosakuken/bunkakai/53/pdf/r1413733_11.pdf" target="_blank" rel="noopener"
+>文化庁&lt;/a>&lt;/p>
+&lt;p>このうち、「邪神ちゃんセリフ逆引き辞書(仮)」では「権利者の得ることが見込まれる利益を害する目的を有している」の事由から①の構成要件を満たしておらず、非親告罪の著作権等侵害罪には該当しないと考えます。&lt;/p>
+&lt;h3 id="出版社であるフレックスコミックス株式会社のガイドラインに違反すること">出版社であるフレックスコミックス株式会社のガイドラインに違反すること&lt;/h3>
+&lt;p>「邪神ちゃんドロップキック」は株式会社フレックスコミックスより出版されており、出版元では以下のような著作権ガイドラインが明示されています。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">画像使用・著作権
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">　フレックスコミックス株式会社の出版物、および弊社ホームページ上の画像・文章・漫画
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">　キャラクター等はいずれも著作物であり、著作権法によって権利が守られています。したがいまして、著作権法に定めのある使用方法以外は、権利者の許諾がない限り、インターネットやイントラネット上で以下のような行為をすることは禁じられています。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">　　1.出版物の装丁・内容・目次等、の全部または一部を掲載・転載すること。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">　　2.ホームページ上の画像・文章・漫画・キャラクター等の全部または一部を掲載・転載すること。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">　　3.出版物やホームページ上の文章・漫画等の要約を掲載すること。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">　　4.出版物やホームページ上の画像・文章・漫画・キャラクター等をもとに作成した漫画・小説・文章等を掲載すること。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">　　5.出版物やホームページ上の画像・漫画・キャラクター等を使用・改変した自作画（イラスト・パロディ等）を掲載すること。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">　　6.出版物やホームページ上の画像・漫画・キャラクター等、およびそれらを改変した自作画から、壁紙・アイコン・コンピューターソフト等を作成し、掲載すること。
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>引用元: &lt;a class="link" href="https://flex-comix.jp/copy-info/" target="_blank" rel="noopener"
+>https://flex-comix.jp/copy-info/&lt;/a>&lt;/p>
+&lt;p>「邪神ちゃんセリフ逆引き辞書(仮)」はこのうち「２」の要件に明確に違反しています。&lt;/p>
+&lt;p>一方で、「邪神ちゃんドロップキック」における作品展開に際しては、一部権利者が二次創作を推奨していることに留意が必要だと考えます。&lt;/p>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://jashinchan.com/special" target="_blank" rel="noopener"
+>https://jashinchan.com/special&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://twitter.com/jashinchan_PJ/status/1575868188075921408" target="_blank" rel="noopener"
+>https://twitter.com/jashinchan_PJ/status/1575868188075921408&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://twitter.com/Cumene_/status/1739699802269757924" target="_blank" rel="noopener"
+>https://twitter.com/Cumene_/status/1739699802269757924&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://twitter.com/jashinchan_PJ/status/1739702139868606930" target="_blank" rel="noopener"
+>https://twitter.com/jashinchan_PJ/status/1739702139868606930&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>また、今回の「邪神ちゃんセリフ逆引き辞書(仮)」に関しても、アニメ公式アカウントより肯定的と取ることもできる反応を頂いています。&lt;/p>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://twitter.com/jashinchan_PJ/status/1752525106746945885" target="_blank" rel="noopener"
+>https://twitter.com/jashinchan_PJ/status/1752525106746945885&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>一方で、出版元であるフレックスコミックス株式会社としてガイドライン違反を許容するかどうかについては確認する必要があると考えており、確認を進めています。&lt;/p>
+&lt;h3 id="セリフデータを悪用される可能性があること">セリフデータを悪用される可能性があること&lt;/h3>
+&lt;p>作成に反対されている方より、セリフデータを文字列に起こすことによってそれが悪用される懸念があるとの指摘をいただきました。&lt;/p>
+&lt;p>指摘の内容としては、セリフを文字データとして作成することにより機械翻訳等を駆使して違法な海賊版作品が作成されることを助長するのではないか、という内容でした。&lt;/p>
+&lt;p>しかし、この指摘については指摘を行った側から Google レンズのような既存のアプリケーションを用いることで既に容易に行えるものなので考慮の必要はないかもしれないと取り下げられました。&lt;/p>
+&lt;h3 id="読まれる権利を侵害すること">「読まれる権利」を侵害すること&lt;/h3>
+&lt;p>作成に反対されている方より、便利なツールを作成することで原作を読み返すという作業が行われなくなり、原作の読まれる権利を侵害するのではないかという指摘がありました。&lt;/p>
+&lt;p>もしこの理屈が成り立つのであれば、本に付箋やしおりを挟むことすらも権利の侵害なのではないかと思います。&lt;/p>
+&lt;h3 id="愛がないこと">「愛がない」こと&lt;/h3>
+&lt;p>作成に反対されている方より、あなたのやろうとしている無断転載には我々のような二次創作者と違い愛がないという指摘をいただきました。&lt;/p>
+&lt;p>愛とは主観的なものでしかなく、作品への愛をあなたの尺度で測られることに正当性はないと考えます。&lt;/p>
+&lt;h3 id="同人活動という文化を破壊すること">「同人活動」という文化を破壊すること&lt;/h3>
+&lt;p>私の X (旧: Twitter) 上でのポストの通り、同人活動という文化を破壊する可能性があるのかもしれないと考えました。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">もちろん、その「やめろ」という言葉を無下にするつもりはありません。同人活動というのはすべての人が空気を読んで作品を最大限楽しみ、盛り上げるための手段であり、文化だと思っています。そこに「空気を読めない」行為をすることによって文化を破壊するような行為はしたくないと考えています。
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>引用元: &lt;a class="link" href="https://twitter.com/zeriyoshi_s/status/1752587398154993741" target="_blank" rel="noopener"
+>https://twitter.com/zeriyoshi_s/status/1752587398154993741&lt;/a>&lt;/p>
+&lt;p>しかし、これについては現在反対されている方から類似した指摘を一切いただけていないため、単なる私の思い過ごしである可能性が高い状況です。&lt;/p></description></item></channel></rss>
